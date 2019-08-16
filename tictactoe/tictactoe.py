@@ -23,7 +23,7 @@ def play(player1: str, player2: str) -> None:
         player2_process = Popen(['python', player2], shell=False, stdin=PIPE, stdout=PIPE)
 
     # have the players play against each other until there is a winner or a tie
-    while True:
+    while not board_is_full(table):
 
         print()
 
@@ -37,6 +37,8 @@ def play(player1: str, player2: str) -> None:
         # player 1
         while True:
 
+            print_table(table)
+
             if human_player1:
                 s = input('player 1, enter your move: ')
             else:
@@ -46,13 +48,15 @@ def play(player1: str, player2: str) -> None:
                 s = player1_process.stdout.readline().decode(encoding='utf-8').rstrip()
 
             move = parse_move(s)
-            print_table(table)
             print('player 1 tried:', move)
 
             if validate_move(table, move):
                 r, c = move
                 table[r][c] = 1
                 break
+
+        if board_is_full(table):
+            break
 
         print()
 
@@ -83,6 +87,10 @@ def play(player1: str, player2: str) -> None:
                 r, c = move
                 table[r][c] = 2
                 break
+
+    if board_is_full(table) and check_for_winner(table) == 0:
+        print()
+        print("It's a draw!")
 
     # stop the player processes
     if not human_player1:
@@ -138,3 +146,13 @@ def print_table(table: Table) -> None:
 
     for row in table:
         print(row)
+
+
+def board_is_full(table: Table) -> bool:
+
+    for row in table:
+        for box in row:
+            if box == 0:
+                return False
+
+    return True
