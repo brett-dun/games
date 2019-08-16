@@ -2,7 +2,7 @@
 import sys
 
 from tictactoe import tictactoe
-import connectfour
+from connectfour import connectfour
 
 
 def main():
