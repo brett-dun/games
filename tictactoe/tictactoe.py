@@ -1,39 +1,52 @@
 
-from typing import Tuple
+from typing import Tuple, List
 from subprocess import Popen, PIPE
 import re
 
-pattern = re.compile("\([0-9]+,\ [0-9]+\)")
+Table = List[List]
+
+pattern = re.compile("\([0-9]+,\ ?[0-9]+\)")
 
 
 def play(player1: str, player2: str) -> None:
 
     # 3x3 table of zeros
-    table = [[0]*3 for i in range(3)]
+    table = [[0]*3 for _ in range(3)]
 
-    player1_process = Popen(['python', player1], shell=False, stdin=PIPE, stdout=PIPE)
-    player2_process = Popen(['python', player2], shell=False, stdin=PIPE, stdout=PIPE)
+    human_player1 = (player1 == 'human')
+    human_player2 = (player2 == 'human')
+
+    if not human_player1:
+        player1_process = Popen(['python', player1], shell=False, stdin=PIPE, stdout=PIPE)
+
+    if not human_player2:
+        player2_process = Popen(['python', player2], shell=False, stdin=PIPE, stdout=PIPE)
 
     # have the players play against each other until there is a winner or a tie
     while True:
 
+        print()
+
         # check if either player has won
         winner = check_for_winner(table)
         if winner != 0:
-            print(table)
+            print_table(table)
             print('winner: ', winner)
             break
 
         # player 1
         while True:
 
-            player1_process.stdin.write((str(table)+'\r\n').encode())
-            player1_process.stdin.flush()
+            if human_player1:
+                s = input('player 1, enter your move: ')
+            else:
+                player1_process.stdin.write((str(table)+'\r\n').encode())
+                player1_process.stdin.flush()
 
-            s = player1_process.stdout.readline().decode(encoding='utf-8').rstrip()
+                s = player1_process.stdout.readline().decode(encoding='utf-8').rstrip()
 
             move = parse_move(s)
-            print(table)
+            print_table(table)
             print('player 1 tried:', move)
 
             if validate_move(table, move):
@@ -41,23 +54,29 @@ def play(player1: str, player2: str) -> None:
                 table[r][c] = 1
                 break
 
+        print()
+
         # check if either player has won
         winner = check_for_winner(table)
         if winner != 0:
-            print(table)
+            print_table(table)
             print('winner: ', winner)
             break
 
         # player 2
         while True:
 
-            player2_process.stdin.write((str(table) + '\r\n').encode())
-            player2_process.stdin.flush()
+            print_table(table)
 
-            s = player2_process.stdout.readline().decode(encoding='utf-8').rstrip()
+            if human_player2:
+                s = input('player 2, enter your move: ')
+            else:
+                player2_process.stdin.write((str(table) + '\r\n').encode())
+                player2_process.stdin.flush()
+
+                s = player2_process.stdout.readline().decode(encoding='utf-8').rstrip()
 
             move = parse_move(s)
-            print(table)
             print('player 2 tried:', move)
 
             if validate_move(table, move):
@@ -66,8 +85,11 @@ def play(player1: str, player2: str) -> None:
                 break
 
     # stop the player processes
-    player1_process.kill()
-    player2_process.kill()
+    if not human_player1:
+        player1_process.kill()
+
+    if not human_player2:
+        player2_process.kill()
 
     return
 
@@ -77,18 +99,24 @@ def parse_move(s: str) -> Tuple:
     if s is None or pattern.match(s) is None:
         return None
 
-    r, c = [int(x) for x in s[1:-1].split(', ')]
-    return r, c
+    try:
+        r, c = [int(x) for x in s[1:-1].split(',')]
+        return r, c
+    except ValueError:
+        return None
 
 
 # returns True if the move is valid, False otherwise
-def validate_move(table, move):
+def validate_move(table: Table, move: Tuple) -> bool:
+
+    if move is None:
+        return False
 
     return (0 <= move[0] < 3) and (0 <= move[1] < 3) and (table[move[0]][move[1]] == 0)
 
 
 # check to see if either player has won the game; returns the winner if there is one, 0 otherwise
-def check_for_winner(table):
+def check_for_winner(table: Table) -> int:
 
     # check rows and columns
     for i in range(3):
@@ -104,3 +132,9 @@ def check_for_winner(table):
         return table[2][0]
 
     return 0
+
+
+def print_table(table: Table) -> None:
+
+    for row in table:
+        print(row)
