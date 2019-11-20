@@ -1,7 +1,18 @@
 
+__author__ = "Brett Duncan"
+__copyright__ = "Copyright 2019"
+__credits__ = []
+__license__ = ""
+__version__ = "0.0.0"
+__maintainer__ = "Brett Duncan"
+__email__ = "dunca384@umn.edu"
+__status__ = "Development"
+
+
 from typing import Tuple, List
 from subprocess import Popen, PIPE
 import re
+
 
 Table = List[List]
 
@@ -9,6 +20,12 @@ pattern = re.compile("\([0-9]+,\ ?[0-9]+\)")
 
 
 def play(player1: str, player2: str) -> None:
+    """
+
+    :param player1:
+    :param player2:
+    :return:
+    """
 
     # 3x3 table of zeros
     table = [[0]*3 for _ in range(3)]
@@ -17,10 +34,14 @@ def play(player1: str, player2: str) -> None:
     human_player2 = (player2 == 'human')
 
     if not human_player1:
-        player1_process = Popen(['python', player1], shell=False, stdin=PIPE, stdout=PIPE)
+        player1_process = Popen(player1, shell=False, stdin=PIPE, stdout=PIPE)
+        player1_process.stdin.write('1\n'.encode())
+        player1_process.stdin.flush()
 
     if not human_player2:
-        player2_process = Popen(['python', player2], shell=False, stdin=PIPE, stdout=PIPE)
+        player2_process = Popen(player2, shell=False, stdin=PIPE, stdout=PIPE)
+        player2_process.stdin.write('2\n'.encode())
+        player2_process.stdin.flush()
 
     # have the players play against each other until there is a winner or a tie
     while not table_is_full(table):
@@ -42,7 +63,7 @@ def play(player1: str, player2: str) -> None:
             if human_player1:
                 s = input('player 1, enter your move: ')
             else:
-                player1_process.stdin.write((str(table)+'\r\n').encode())
+                player1_process.stdin.write((str(table)+'\n').encode())
                 player1_process.stdin.flush()
 
                 s = player1_process.stdout.readline().decode(encoding='utf-8').rstrip()
@@ -75,7 +96,7 @@ def play(player1: str, player2: str) -> None:
             if human_player2:
                 s = input('player 2, enter your move: ')
             else:
-                player2_process.stdin.write((str(table) + '\r\n').encode())
+                player2_process.stdin.write((str(table) + '\n').encode())
                 player2_process.stdin.flush()
 
                 s = player2_process.stdout.readline().decode(encoding='utf-8').rstrip()

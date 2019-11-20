@@ -1,4 +1,14 @@
 
+__author__ = "Brett Duncan"
+__copyright__ = "Copyright 2019"
+__credits__ = []
+__license__ = ""
+__version__ = "0.0.0"
+__maintainer__ = "Brett Duncan"
+__email__ = "dunca384@umn.edu"
+__status__ = "Development"
+
+
 import sys
 
 from tictactoe import tictactoe

@@ -1,4 +1,14 @@
 
+__author__ = "Brett Duncan"
+__copyright__ = "Copyright 2019"
+__credits__ = []
+__license__ = ""
+__version__ = "0.0.0"
+__maintainer__ = "Brett Duncan"
+__email__ = "dunca384@umn.edu"
+__status__ = "Development"
+
+
 from typing import Tuple, List
 from subprocess import Popen, PIPE
 
@@ -6,6 +16,12 @@ Table = List[List]
 
 
 def play(player1: str, player2: str):
+    """
+
+    :param player1:
+    :param player2:
+    :return:
+    """
 
     # 6x7 table of zeros
     table = [[0] * 7 for _ in range(6)]
@@ -14,10 +30,10 @@ def play(player1: str, player2: str):
     human_player2 = (player2 == 'human')
 
     if not human_player1:
-        player1_process = Popen(['python', player1], shell=False, stdin=PIPE, stdout=PIPE)
+        player1_process = Popen(player1, shell=True, stdin=PIPE, stdout=PIPE)
 
     if not human_player2:
-        player2_process = Popen(['python', player2], shell=False, stdin=PIPE, stdout=PIPE)
+        player2_process = Popen(player2, shell=True, stdin=PIPE, stdout=PIPE)
 
     # have the players play against each other until there is a winner or a tie
     while not table_is_full(table):
@@ -39,7 +55,7 @@ def play(player1: str, player2: str):
             if human_player1:
                 s = input('player 1, enter your move: ')
             else:
-                player1_process.stdin.write((str(table) + '\r\n').encode())
+                player1_process.stdin.write((str(table) + '\n').encode())
                 player1_process.stdin.flush()
 
                 s = player1_process.stdout.readline().decode(encoding='utf-8').rstrip()
@@ -71,7 +87,7 @@ def play(player1: str, player2: str):
             if human_player2:
                 s = input('player 2, enter your move: ')
             else:
-                player2_process.stdin.write((str(table) + '\r\n').encode())
+                player2_process.stdin.write((str(table) + '\n').encode())
                 player2_process.stdin.flush()
 
                 s = player2_process.stdout.readline().decode(encoding='utf-8').rstrip()
@@ -99,6 +115,11 @@ def play(player1: str, player2: str):
 
 
 def parse_move(s: str) -> int:
+    """
+
+    :param s:
+    :return:
+    """
 
     try:
         v = int(s)
@@ -110,6 +131,12 @@ def parse_move(s: str) -> int:
 
 # returns True if the move is valid, False otherwise
 def validate_move(table: Table, move: int) -> bool:
+    """
+
+    :param table:
+    :param move:
+    :return:
+    """
 
     if move == -1:
         return False
@@ -119,6 +146,11 @@ def validate_move(table: Table, move: int) -> bool:
 
 # check to see if either player has won the game; returns the winner if there is one, 0 otherwise
 def check_for_winner(table: Table) -> int:
+    """
+
+    :param table:
+    :return:
+    """
 
     # check rows
     for i in range(6):
@@ -148,12 +180,22 @@ def check_for_winner(table: Table) -> int:
 
 
 def print_table(table: Table) -> None:
+    """
+
+    :param table:
+    :return:
+    """
 
     for row in table:
         print(row)
 
 
 def table_is_full(table: Table) -> bool:
+    """
+
+    :param table:
+    :return:
+    """
 
     for row in table:
         for box in row:
@@ -164,6 +206,11 @@ def table_is_full(table: Table) -> bool:
 
 
 def table_is_full(table: Table) -> bool:
+    """
+
+    :param table:
+    :return:
+    """
 
     for row in table:
         for box in row:
@@ -174,6 +221,13 @@ def table_is_full(table: Table) -> bool:
 
 
 def take_move(table: Table, player: int, move: int):
+    """
+
+    :param table:
+    :param player:
+    :param move:
+    :return:
+    """
 
     for i in range(5, -1, -1):
 
